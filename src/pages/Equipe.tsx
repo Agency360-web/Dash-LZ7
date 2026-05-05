@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -94,6 +94,24 @@ export default function Equipe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const excluirVendedor = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("vendedores").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Vendedor removido");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const handleExcluir = (v: Vendedor) => {
+    if (window.confirm(`Deseja realmente excluir o vendedor "${v.nome}"?`)) {
+      excluirVendedor.mutate(v.id);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -183,6 +201,14 @@ export default function Equipe() {
                         }}
                       >
                         <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleExcluir(v)}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
