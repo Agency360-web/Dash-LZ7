@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, Users, TrendingUp, LogOut } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Users, TrendingUp, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -14,6 +14,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const items = [
   { title: "Visão Geral", url: "/", icon: LayoutDashboard },
@@ -22,7 +24,7 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
   const { signOut } = useAuth();
@@ -33,19 +35,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md overflow-hidden">
-            <img src="/logo.png" alt="LZ7" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
-            <TrendingUp className="h-4 w-4 text-primary hidden" />
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-sidebar-foreground">LZ7 Energia</span>
-              <span className="text-xs text-muted-foreground">Sistema de Monitoramento</span>
-            </div>
-          )}
-        </div>
+      <SidebarHeader className="border-b border-sidebar-border flex items-center justify-center overflow-hidden py-4 px-2">
+        <img
+          src="/logo-lz7.png"
+          alt="LZ7"
+          className="w-full h-auto max-h-20 object-contain group-data-[collapsible=icon]:hidden"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
+        <TrendingUp className="h-5 w-5 text-primary hidden group-data-[collapsible=icon]:block" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

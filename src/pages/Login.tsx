@@ -38,17 +38,14 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
-        <CardHeader className="space-y-2 text-center pb-6">
-          <div className="w-16 h-16 mx-auto mb-2 overflow-hidden rounded-xl shadow-sm">
-            <img src="/logo.png" alt="LZ7" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
-            <div className="hidden w-full h-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-2xl">L</span>
-            </div>
+        <CardHeader className="text-center pt-8 pb-2">
+          <div className="mx-auto">
+            <img 
+              src="/logo-lz7.png" 
+              alt="LZ7 Energia" 
+              className="w-[200px] mx-auto object-contain" 
+            />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">LZ7 Energia</CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Acesse o sistema de Lançamentos
-          </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
