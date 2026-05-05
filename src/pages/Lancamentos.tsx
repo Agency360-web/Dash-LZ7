@@ -415,7 +415,7 @@ export default function Lancamentos() {
               <CardDescription>Últimos registros de investimento e conversas por campanha.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -492,7 +492,7 @@ export default function Lancamentos() {
               <CardDescription>Últimos registros da distribuição de leads.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>

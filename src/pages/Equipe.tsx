@@ -96,7 +96,7 @@ export default function Equipe() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Equipe</h1>
           <p className="text-sm text-muted-foreground">Gerencie os vendedores que recebem leads.</p>
@@ -132,7 +132,7 @@ export default function Equipe() {
         </Dialog>
       </div>
 
-      <Card>
+      <Card className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>

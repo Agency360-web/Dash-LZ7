@@ -346,7 +346,7 @@ export default function Dashboard() {
           ) : campanhasData.length === 0 ? (
             <EmptyState text="Nenhuma campanha encontrada no período selecionado." />
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
