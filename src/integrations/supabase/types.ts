@@ -38,13 +38,48 @@ export type Database = {
         }
         Relationships: []
       }
+      metricas_campanhas: {
+        Row: {
+          campanha: string
+          conjunto: string
+          conversas: number
+          created_at: string
+          data: string
+          id: string
+          investimento: number
+          updated_at: string
+        }
+        Insert: {
+          campanha?: string
+          conjunto?: string
+          conversas?: number
+          created_at?: string
+          data: string
+          id?: string
+          investimento?: number
+          updated_at?: string
+        }
+        Update: {
+          campanha?: string
+          conjunto?: string
+          conversas?: number
+          created_at?: string
+          data?: string
+          id?: string
+          investimento?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads_vendedores: {
+
         Row: {
           created_at: string
           data: string
           id: string
           leads_qualificados: number
           leads_totais: number
+          regiao: string
           updated_at: string
           vendedor_id: string
         }
@@ -54,6 +89,7 @@ export type Database = {
           id?: string
           leads_qualificados?: number
           leads_totais?: number
+          regiao?: string
           updated_at?: string
           vendedor_id: string
         }
@@ -63,6 +99,7 @@ export type Database = {
           id?: string
           leads_qualificados?: number
           leads_totais?: number
+          regiao?: string
           updated_at?: string
           vendedor_id?: string
         }

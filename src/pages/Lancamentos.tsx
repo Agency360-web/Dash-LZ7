@@ -68,13 +68,13 @@ export default function Lancamentos() {
   const [editInvValor, setEditInvValor] = React.useState("");
   const [editConversas, setEditConversas] = React.useState("");
 
-  const [editLeadKey, setEditLeadKey] = React.useState<{data: string, vendedor_id: string, nome: string} | null>(null);
+  const [editLeadKey, setEditLeadKey] = React.useState<{data: string, vendedor_id: string, nome: string, regiao: string} | null>(null);
   const [editLeadTot, setEditLeadTot] = React.useState("");
   const [editLeadQual, setEditLeadQual] = React.useState("");
 
   // Deletion states
   const [deleteMetricaId, setDeleteMetricaId] = React.useState<string | null>(null);
-  const [deleteLeadKey, setDeleteLeadKey] = React.useState<{data: string, vendedor_id: string} | null>(null);
+  const [deleteLeadKey, setDeleteLeadKey] = React.useState<{data: string, vendedor_id: string, regiao: string} | null>(null);
 
   const vendedores = useQuery({
     queryKey: ["vendedores", "ativos"],
@@ -227,7 +227,8 @@ export default function Lancamentos() {
         .from("leads_vendedores")
         .update({ leads_totais: tot, leads_qualificados: qual })
         .eq("vendedor_id", editLeadKey.vendedor_id)
-        .eq("data", editLeadKey.data);
+        .eq("data", editLeadKey.data)
+        .eq("regiao", editLeadKey.regiao);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -246,7 +247,8 @@ export default function Lancamentos() {
         .from("leads_vendedores")
         .delete()
         .eq("vendedor_id", deleteLeadKey.vendedor_id)
-        .eq("data", deleteLeadKey.data);
+        .eq("data", deleteLeadKey.data)
+        .eq("regiao", deleteLeadKey.regiao);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -498,6 +500,7 @@ export default function Lancamentos() {
                     <TableRow>
                       <TableHead>Data</TableHead>
                       <TableHead>Vendedor</TableHead>
+                      <TableHead>Região</TableHead>
                       <TableHead>Leads Brutos</TableHead>
                       <TableHead>Agendamentos</TableHead>
                       <TableHead className="w-[80px]"></TableHead>
@@ -511,9 +514,10 @@ export default function Lancamentos() {
                       <TableRow><TableCell colSpan={5} className="text-center py-4">Nenhum registro encontrado.</TableCell></TableRow>
                     )}
                     {historicoLeads.data?.map((lead) => (
-                      <TableRow key={`${lead.data}-${lead.vendedor_id}`}>
+                      <TableRow key={`${lead.data}-${lead.vendedor_id}-${lead.regiao}`}>
                         <TableCell>{format(parseISO(lead.data), "dd/MM/yyyy")}</TableCell>
                         <TableCell>{lead.vendedores?.nome || "Desconhecido"}</TableCell>
+                        <TableCell>{lead.regiao || "Geral"}</TableCell>
                         <TableCell>{lead.leads_totais}</TableCell>
                         <TableCell>{lead.leads_qualificados}</TableCell>
                         <TableCell>
@@ -531,7 +535,8 @@ export default function Lancamentos() {
                                   setEditLeadKey({
                                     data: lead.data,
                                     vendedor_id: lead.vendedor_id,
-                                    nome: lead.vendedores?.nome || "Desconhecido"
+                                    nome: lead.vendedores?.nome || "Desconhecido",
+                                    regiao: lead.regiao
                                   });
                                   setEditLeadTot(String(lead.leads_totais));
                                   setEditLeadQual(String(lead.leads_qualificados));
@@ -545,7 +550,8 @@ export default function Lancamentos() {
                                 className="text-destructive"
                                 onClick={() => setDeleteLeadKey({
                                   data: lead.data,
-                                  vendedor_id: lead.vendedor_id
+                                  vendedor_id: lead.vendedor_id,
+                                  regiao: lead.regiao
                                 })}
                               >
                                 <Trash className="mr-2 h-4 w-4" />
@@ -626,7 +632,7 @@ export default function Lancamentos() {
             <DialogDescription>Altere a quantidade de leads para o vendedor selecionado.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2">
                 <Label>Data</Label>
                 <Input value={editLeadKey?.data ? format(parseISO(editLeadKey.data), "dd/MM/yyyy") : ""} disabled />
@@ -634,6 +640,10 @@ export default function Lancamentos() {
               <div className="space-y-2">
                 <Label>Vendedor</Label>
                 <Input value={editLeadKey?.nome || ""} disabled />
+              </div>
+              <div className="space-y-2">
+                <Label>Região</Label>
+                <Input value={editLeadKey?.regiao || ""} disabled />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
