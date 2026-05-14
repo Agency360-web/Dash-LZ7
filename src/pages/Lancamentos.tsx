@@ -68,13 +68,13 @@ export default function Lancamentos() {
   const [editInvValor, setEditInvValor] = React.useState("");
   const [editConversas, setEditConversas] = React.useState("");
 
-  const [editLeadKey, setEditLeadKey] = React.useState<{data: string, vendedor_id: string, nome: string, regiao: string} | null>(null);
+  const [editLeadKey, setEditLeadKey] = React.useState<{id: string, data: string, vendedor_id: string, nome: string, regiao: string} | null>(null);
   const [editLeadTot, setEditLeadTot] = React.useState("");
   const [editLeadQual, setEditLeadQual] = React.useState("");
 
   // Deletion states
   const [deleteMetricaId, setDeleteMetricaId] = React.useState<string | null>(null);
-  const [deleteLeadKey, setDeleteLeadKey] = React.useState<{data: string, vendedor_id: string, regiao: string} | null>(null);
+  const [deleteLeadId, setDeleteLeadId] = React.useState<string | null>(null);
 
   const vendedores = useQuery({
     queryKey: ["vendedores", "ativos"],
@@ -150,19 +150,35 @@ export default function Lancamentos() {
       if (!vendedorId) throw new Error("Selecione um vendedor");
       if (!regiaoLead) throw new Error("Selecione uma região");
       const qual = Number(leadsQual || 0);
-      const { error } = await supabase
+      
+      const { data: existing } = await supabase
         .from("leads_vendedores")
-        .upsert(
-          {
+        .select("id, leads_qualificados")
+        .eq("vendedor_id", vendedorId)
+        .eq("data", isoDay(dataLeads))
+        .eq("regiao", regiaoLead)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await supabase
+          .from("leads_vendedores")
+          .update({
+            leads_qualificados: (existing.leads_qualificados || 0) + qual,
+          })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("leads_vendedores")
+          .insert({
             vendedor_id: vendedorId,
             data: isoDay(dataLeads),
             regiao: regiaoLead,
             leads_totais: 0,
             leads_qualificados: qual,
-          },
-          { onConflict: "vendedor_id,data,regiao" }
-        );
-      if (error) throw error;
+          });
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success("Agendamento registrado com sucesso");
@@ -226,9 +242,7 @@ export default function Lancamentos() {
       const { error } = await supabase
         .from("leads_vendedores")
         .update({ leads_totais: tot, leads_qualificados: qual })
-        .eq("vendedor_id", editLeadKey.vendedor_id)
-        .eq("data", editLeadKey.data)
-        .eq("regiao", editLeadKey.regiao);
+        .eq("id", editLeadKey.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -242,18 +256,16 @@ export default function Lancamentos() {
 
   const deleteLeads = useMutation({
     mutationFn: async () => {
-      if (!deleteLeadKey) throw new Error("Registro não selecionado");
+      if (!deleteLeadId) throw new Error("Registro não selecionado");
       const { error } = await supabase
         .from("leads_vendedores")
         .delete()
-        .eq("vendedor_id", deleteLeadKey.vendedor_id)
-        .eq("data", deleteLeadKey.data)
-        .eq("regiao", deleteLeadKey.regiao);
+        .eq("id", deleteLeadId);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Leads excluídos com sucesso");
-      setDeleteLeadKey(null);
+      setDeleteLeadId(null);
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["historico_leads"] });
     },
@@ -514,7 +526,7 @@ export default function Lancamentos() {
                       <TableRow><TableCell colSpan={5} className="text-center py-4">Nenhum registro encontrado.</TableCell></TableRow>
                     )}
                     {historicoLeads.data?.map((lead) => (
-                      <TableRow key={`${lead.data}-${lead.vendedor_id}-${lead.regiao}`}>
+                      <TableRow key={lead.id}>
                         <TableCell>{format(parseISO(lead.data), "dd/MM/yyyy")}</TableCell>
                         <TableCell>{lead.vendedores?.nome || "Desconhecido"}</TableCell>
                         <TableCell>{lead.regiao || "Geral"}</TableCell>
@@ -533,6 +545,7 @@ export default function Lancamentos() {
                               <DropdownMenuItem
                                 onClick={() => {
                                   setEditLeadKey({
+                                    id: lead.id,
                                     data: lead.data,
                                     vendedor_id: lead.vendedor_id,
                                     nome: lead.vendedores?.nome || "Desconhecido",
@@ -548,11 +561,7 @@ export default function Lancamentos() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 className="text-destructive"
-                                onClick={() => setDeleteLeadKey({
-                                  data: lead.data,
-                                  vendedor_id: lead.vendedor_id,
-                                  regiao: lead.regiao
-                                })}
+                                onClick={() => setDeleteLeadId(lead.id)}
                               >
                                 <Trash className="mr-2 h-4 w-4" />
                                 Excluir
@@ -700,12 +709,12 @@ export default function Lancamentos() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={!!deleteLeadKey} onOpenChange={(open) => !open && setDeleteLeadKey(null)}>
+      <AlertDialog open={!!deleteLeadId} onOpenChange={(open) => !open && setDeleteLeadId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso removerá permanentemente o registro de leads do dia {deleteLeadKey?.data ? format(parseISO(deleteLeadKey.data), "dd/MM/yyyy") : ""}.
+              Esta ação não pode ser desfeita. Isso removerá permanentemente o registro de leads.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
